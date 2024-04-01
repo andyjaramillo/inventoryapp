@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tables | TailAdmin - Tailwind CSS Admin Dashboard Template</title>
+
+    <script type="module">
+      // Import Firebase services individually
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js';
+      import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-lite.js';
+      import { getDatabase, ref, set, push, onValue, get, child  } from 'https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js';
+
+      // Import Firebase configuration
+      const firebaseConfig = {
+        "apiKey": "AIzaSyCY_lNG1bltt3Op2rIEGxbrZi8qHOa6F9A",
+        "authDomain": "mylazycamperinventoryapp.firebaseapp.com",
+        "projectId": "mylazycamperinventoryapp",
+        "storageBucket": "mylazycamperinventoryapp.appspot.com",
+        "messagingSenderId": "1067622531967",
+        "appId": "1:1067622531967:web:12630e3d02cd2cd8a0904a",
+        "measurementId": "G-YW1XFBJLWM"
+      };
+
+      // Initialize Firebase app with your config
+      const app = initializeApp(firebaseConfig);
+
+      // Get references to Firebase services
+      const firestore = getFirestore(app);
+      const db = getDatabase(app);
+
+      document.getElementById('filerbtn').addEventListener('click', filterTable);
+      async function filterTable() {
+        const orders = ref(db, 'orders');
+        const table = document.getElementById('table');
+        const fromDate = new Date(document.getElementById('fromDate').value);
+        const toDate = new Date(document.getElementById('toDate').value);
+
+        const tdElements = table.getElementsByTagName('td');
+        for (const td of tdElements) {
+          const dateText = td.innerText.trim();
+          if (dateText) {
+            const date = new Date(dateText);
+            if (!isNaN(date.getTime()) && date >= fromDate && date <= toDate) {
+              td.style.backgroundColor = 'yellow'; // Highlighting the cell within range
+            } else {
+              td.style.backgroundColor = ''; // Resetting background color
+            }
+          }
+        }
+      }
+
+
+      async function fillTable(){
+        const orders = ref(db, 'orders');
+        const table = document.getElementById('table');
+
+        get(orders).then((snapshot) => {
+          if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+              const childKey = childSnapshot.key;
+              const childData = childSnapshot.val();
+              console.log(childKey, childData);
+              const newRow = document.createElement('tr');
+              newRow.innerHTML = `
+<td class="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark xl:pl-11">
+    <h5 class="font-medium text-black dark:text-white">Number of 4 carts</h5>
+    <p class="text-sm">${childData.fourPlaceCarts}</p>
+    <h5 class="font-medium text-black dark:text-white">Number of 6 carts</h5>
+    <p class="text-sm">${childData.sixPlaceCarts}</p>
+    <h5 class="font-medium text-black dark:text-white">Number of Utility places</h5>
+    <p class="text-sm">${childData.utilityPlaceCarts}</p>
+  </td>
+  <td class="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+    <p class="text-black dark:text-white">${childData.startDate}</p>
+  </td>
+  <td class="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+    <p class="text-black dark:text-white">${childData.startDate}</p>
+  </td>
+  <td class="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+    <p class="inline-flex rounded-full bg-success bg-opacity-10 px-3 py-1 text-sm font-medium text-success">
+      New Status
+    </p>
+  </td>
+`;
+
+              table.appendChild(newRow)
+
+            });
+          } else {
+            console.log("No data available");
+          }
+        }).catch((error) => {
+          console.error(error);
+        });
+
+      }
+      window.onload = fillTable;
+    </script>
+  </head>
+
+  <body
+    x-data="{ page: 'tables', 'loaded': true, 'darkMode': true, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }"
+    x-init="
+          darkMode = JSON.parse(localStorage.getItem('darkMode'));
+          $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))"
+    :class="{'dark text-bodydark bg-boxdark-2': darkMode === true}"
+  >
+    <!-- ===== Preloader Start ===== -->
+    <include src="./partials/preloader.html"></include>
+    <!-- ===== Preloader End ===== -->
+
+    <!-- ===== Page Wrapper Start ===== -->
+    <div class="flex h-screen overflow-hidden">
+      <!-- ===== Sidebar Start ===== -->
+      <include src="./partials/sidebar.html"></include>
+      <!-- ===== Sidebar End ===== -->
+
+      <!-- ===== Content Area Start ===== -->
+      <div
+        class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden"
+      >
+        <!-- ===== Header Start ===== -->
+        <include src="./partials/header.html" />
+        <!-- ===== Header End ===== -->
+
+        <!-- ===== Main Content Start ===== -->
+        <main>
+          <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+            <!-- Breadcrumb Start -->
+            <div
+              class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <h2 class="text-title-md2 font-bold text-black dark:text-white">
+                Tables
+              </h2>
+
+              <nav>
+                <ol class="flex items-center gap-2">
+                  <li>
+                    <a class="font-medium" href="index.html">Dashboard /</a>
+                  </li>
+                  <li class="font-medium text-primary">Tables</li>
+                </ol>
+              </nav>
+            </div>
+            <!-- Breadcrumb End -->
+
+            <!-- ====== Table Section Start -->
+            <div class="flex flex-col gap-10">
+              <!-- ====== Table Three Start -->
+              <div
+                      class="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1"
+              >
+                <div class="max-w-full overflow-x-auto">
+                  <table class="w-full table-auto">
+                    <thead>
+                    <h2 class="text-title-md font-bold text-black dark:text-white">
+                      Filter
+                    </h2>
+                    <input
+                            class="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                            placeholder="mm/dd/yyyy"
+                            data-class="flatpickr-right"
+                            id="fromDate"
+                    />
+
+                    <div
+                            class="pointer-events-none absolute inset-0 left-auto right-5 flex items-center"
+                    >
+                      <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 18 18"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                                d="M15.7504 2.9812H14.2879V2.36245C14.2879 2.02495 14.0066 1.71558 13.641 1.71558C13.2754 1.71558 12.9941 1.99683 12.9941 2.36245V2.9812H4.97852V2.36245C4.97852 2.02495 4.69727 1.71558 4.33164 1.71558C3.96602 1.71558 3.68477 1.99683 3.68477 2.36245V2.9812H2.25039C1.29414 2.9812 0.478516 3.7687 0.478516 4.75308V14.5406C0.478516 15.4968 1.26602 16.3125 2.25039 16.3125H15.7504C16.7066 16.3125 17.5223 15.525 17.5223 14.5406V4.72495C17.5223 3.7687 16.7066 2.9812 15.7504 2.9812ZM1.77227 8.21245H4.16289V10.9968H1.77227V8.21245ZM5.42852 8.21245H8.38164V10.9968H5.42852V8.21245ZM8.38164 12.2625V15.0187H5.42852V12.2625H8.38164V12.2625ZM9.64727 12.2625H12.6004V15.0187H9.64727V12.2625ZM9.64727 10.9968V8.21245H12.6004V10.9968H9.64727ZM13.8379 8.21245H16.2285V10.9968H13.8379V8.21245ZM2.25039 4.24683H3.71289V4.83745C3.71289 5.17495 3.99414 5.48433 4.35977 5.48433C4.72539 5.48433 5.00664 5.20308 5.00664 4.83745V4.24683H13.0504V4.83745C13.0504 5.17495 13.3316 5.48433 13.6973 5.48433C14.0629 5.48433 14.3441 5.20308 14.3441 4.83745V4.24683H15.7504C16.0316 4.24683 16.2566 4.47183 16.2566 4.75308V6.94683H1.77227V4.75308C1.77227 4.47183 1.96914 4.24683 2.25039 4.24683ZM1.77227 14.5125V12.2343H4.16289V14.9906H2.25039C1.96914 15.0187 1.77227 14.7937 1.77227 14.5125ZM15.7504 15.0187H13.8379V12.2625H16.2285V14.5406C16.2566 14.7937 16.0316 15.0187 15.7504 15.0187Z"
+                                fill="#64748B"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                            class="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                            placeholder="mm/dd/yyyy"
+                            data-class="flatpickr-right"
+                            id="toDate"
+                    />
+
+                    <div
+                            class="pointer-events-none absolute inset-0 left-auto right-5 flex items-center"
+                    >
+                      <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 18 18"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                                d="M15.7504 2.9812H14.2879V2.36245C14.2879 2.02495 14.0066 1.71558 13.641 1.71558C13.2754 1.71558 12.9941 1.99683 12.9941 2.36245V2.9812H4.97852V2.36245C4.97852 2.02495 4.69727 1.71558 4.33164 1.71558C3.96602 1.71558 3.68477 1.99683 3.68477 2.36245V2.9812H2.25039C1.29414 2.9812 0.478516 3.7687 0.478516 4.75308V14.5406C0.478516 15.4968 1.26602 16.3125 2.25039 16.3125H15.7504C16.7066 16.3125 17.5223 15.525 17.5223 14.5406V4.72495C17.5223 3.7687 16.7066 2.9812 15.7504 2.9812ZM1.77227 8.21245H4.16289V10.9968H1.77227V8.21245ZM5.42852 8.21245H8.38164V10.9968H5.42852V8.21245ZM8.38164 12.2625V15.0187H5.42852V12.2625H8.38164V12.2625ZM9.64727 12.2625H12.6004V15.0187H9.64727V12.2625ZM9.64727 10.9968V8.21245H12.6004V10.9968H9.64727ZM13.8379 8.21245H16.2285V10.9968H13.8379V8.21245ZM2.25039 4.24683H3.71289V4.83745C3.71289 5.17495 3.99414 5.48433 4.35977 5.48433C4.72539 5.48433 5.00664 5.20308 5.00664 4.83745V4.24683H13.0504V4.83745C13.0504 5.17495 13.3316 5.48433 13.6973 5.48433C14.0629 5.48433 14.3441 5.20308 14.3441 4.83745V4.24683H15.7504C16.0316 4.24683 16.2566 4.47183 16.2566 4.75308V6.94683H1.77227V4.75308C1.77227 4.47183 1.96914 4.24683 2.25039 4.24683ZM1.77227 14.5125V12.2343H4.16289V14.9906H2.25039C1.96914 15.0187 1.77227 14.7937 1.77227 14.5125ZM15.7504 15.0187H13.8379V12.2625H16.2285V14.5406C16.2566 14.7937 16.0316 15.0187 15.7504 15.0187Z"
+                                fill="#64748B"
+                        />
+                      </svg>
+                    </div>
+                    <button
+                            class=" justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                            id="filerbtn"
+                    >
+                     Filter
+                    </button>
+                    <tr class="bg-gray-2 text-left dark:bg-meta-4">
+                      <th
+                              class="min-w-[220px] px-4 py-4 font-medium text-black dark:text-white xl:pl-11"
+                      >
+                        Number of Carts
+                      </th>
+                      <th
+                              class="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white"
+                      >
+                        Start Date
+                      </th>
+                      <th class="px-4 py-4 font-medium text-black dark:text-white">
+                        End Date
+                      </th>
+                      <th
+                              class="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white"
+                      >
+                        Status
+                      </th>
+                    </tr>
+                    </thead>
+                    <tbody id="table">
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- ====== Table Three End -->
+            </div>
+            <!-- ====== Table Section End -->
+          </div>
+        </main>
+        <!-- ===== Main Content End ===== -->
+      </div>
+      <!-- ===== Content Area End ===== -->
+    </div>
+    <!-- ===== Page Wrapper End ===== -->
+  <script>
+
+  </script>
+  </body>
+</html>
